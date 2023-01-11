@@ -1,12 +1,10 @@
-import React, {type PropsWithChildren} from 'react';
+import React, {useRef, useState} from 'react';
 import {
+  Animated,
   SafeAreaView,
-  ScrollView,
   StatusBar,
   StyleSheet,
-  Text,
   useColorScheme,
-  View,
 } from 'react-native';
 
 import {
@@ -14,43 +12,46 @@ import {
 } from 'react-native/Libraries/NewAppScreen';
 import MenuBar from './src/components/MenuBar';
 
-import HomeScreen from './src/screens/HomeScreen';
-
-  // type Fish = { swim: () => void };
-  // type Bird = { fly: () => void };
-
-  // const lilfish: Fish = {
-  //   swim: ()=>{console.log("swimming")}
-  // }
-
-  // const lilbird: Bird = {
-  //   fly: ()=>{console.log("flying")}
-  // }
-
-  // function isFish(pet: Fish | Bird) : pet is Fish{
-
-  //   return (pet as Fish).swim !== undefined;
-  // }
-
-  // function getFood(pet: Fish | Bird){
-  //   if(isFish(pet)){
-  //     pet
-  //     console.log("fish");
-  //   }else{
-  //     pet
-  //     console.log("bird")
-  //   }  
-  //   return (pet as Fish).swim !== undefined;
-  // }
-
-
+import HomeScreen from './src/pages/HomeScreen';
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
+  const [menuShown,setMenuShown] = useState(true);
+  // Initial 'left' value
+  const slideAnimLeftValue = useRef(new Animated.Value(75)).current;
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
     height:"100%"
+  };
+
+  type AnimValues = {
+    toValue: number;
+    duration: number;
+    useNativeDriver: boolean;
+  };
+
+  const slideAnimValues: AnimValues = {
+    toValue: 100,
+    duration: 500,
+    // Set to false to support layout transitions.
+    useNativeDriver: false,
+  };
+
+  const slideIn = () => {
+    // Will slide into view in .5 seconds
+    Animated.timing(slideAnimLeftValue, {
+      ...slideAnimValues,
+      toValue: 75,
+    }).start();
+  };
+
+  const slideOut = () => {
+    // Will slide out of view in .5 seconds
+    Animated.timing(slideAnimLeftValue, {
+      ...slideAnimValues,
+      toValue: -25,
+    }).start();
   };
 
   return (
@@ -59,9 +60,9 @@ const App = () => {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-        <HomeScreen title={"a title"}>
+        <HomeScreen menuShown={menuShown} setMenuShown={setMenuShown} slideOut={slideOut} slideIn={slideIn}>
         </HomeScreen>
-        <MenuBar></MenuBar>
+        <MenuBar menuShown={menuShown} slideAnimLeftValue={slideAnimLeftValue}></MenuBar>
     </SafeAreaView>
   );
 };
