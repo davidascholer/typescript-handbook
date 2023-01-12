@@ -1,4 +1,4 @@
-import React, {useRef, useState} from 'react';
+import React, {useState} from 'react';
 import {
   Animated,
   SafeAreaView,
@@ -7,51 +7,20 @@ import {
   useColorScheme,
 } from 'react-native';
 
-import {
-  Colors,
-} from 'react-native/Libraries/NewAppScreen';
+import {Colors} from 'react-native/Libraries/NewAppScreen';
 import MenuBar from './src/components/MenuBar';
+import Modal from './src/components/Modal';
 
 import HomeScreen from './src/pages/HomeScreen';
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
-  const [menuShown,setMenuShown] = useState(true);
-  // Initial 'left' value
-  const slideAnimLeftValue = useRef(new Animated.Value(75)).current;
+  const [menuShown, setMenuShown] = useState(true);
+  const [modalShown, setModalShown] = useState(true);
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-    height:"100%"
-  };
-
-  type AnimValues = {
-    toValue: number;
-    duration: number;
-    useNativeDriver: boolean;
-  };
-
-  const slideAnimValues: AnimValues = {
-    toValue: 100,
-    duration: 500,
-    // Set to false to support layout transitions.
-    useNativeDriver: false,
-  };
-
-  const slideIn = () => {
-    // Will slide into view in .5 seconds
-    Animated.timing(slideAnimLeftValue, {
-      ...slideAnimValues,
-      toValue: 75,
-    }).start();
-  };
-
-  const slideOut = () => {
-    // Will slide out of view in .5 seconds
-    Animated.timing(slideAnimLeftValue, {
-      ...slideAnimValues,
-      toValue: -25,
-    }).start();
+    height: '100%',
   };
 
   return (
@@ -60,9 +29,15 @@ const App = () => {
         barStyle={isDarkMode ? 'light-content' : 'dark-content'}
         backgroundColor={backgroundStyle.backgroundColor}
       />
-        <HomeScreen menuShown={menuShown} setMenuShown={setMenuShown} slideOut={slideOut} slideIn={slideIn}>
-        </HomeScreen>
-        <MenuBar menuShown={menuShown} slideAnimLeftValue={slideAnimLeftValue}></MenuBar>
+      <HomeScreen
+        menuShown={menuShown}
+        modalShown={modalShown}
+        setMenuShown={setMenuShown}
+        ></HomeScreen>
+      <Modal
+        modalShown={modalShown}
+        ></Modal>
+      <MenuBar menuShown={menuShown} setModalShown={setModalShown}></MenuBar>
     </SafeAreaView>
   );
 };

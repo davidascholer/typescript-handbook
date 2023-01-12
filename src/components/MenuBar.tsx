@@ -1,18 +1,47 @@
-import React, {type PropsWithChildren} from 'react';
-import {
-  Animated,
-  StyleSheet,
-  TouchableOpacity,
-} from 'react-native';
+import React, {type PropsWithChildren, useEffect, useRef} from 'react';
+import {Animated, StyleSheet, TouchableOpacity} from 'react-native';
 
 const MenuBar: React.FC<
   PropsWithChildren<{
     menuShown: boolean;
-    slideAnimLeftValue: any;
+    setModalShown: Function;
   }>
-> = ({menuShown, slideAnimLeftValue}) => {
+> = ({menuShown, setModalShown}) => {
+  // Initial 'left' value
+  const slideAnimLeftValue = useRef(new Animated.Value(0)).current;
+  const menuSizeInPixels: number = 75;
+
+  type AnimValues = {
+    toValue: number;
+    duration: number;
+    useNativeDriver: boolean;
+  };
+
+  const slideAnimValues: AnimValues = {
+    toValue: 0,
+    duration: 500,
+    // Set to false to support layout transitions.
+    useNativeDriver: false,
+  };
+
+  const slide = (slidePixels: number): void => {
+    // Will slide into view in .5 seconds
+    Animated.timing(slideAnimLeftValue, {
+      ...slideAnimValues,
+      toValue: slidePixels,
+    }).start();
+  };
+
+  useEffect(() => {
+    if (menuShown) {
+      slide(Math.ceil(menuSizeInPixels*.5));
+    } else {
+      slide(Math.ceil(menuSizeInPixels*-1.5));
+    }
+  });
+
   const handlePressed = () => {
-    console.log("pressed")
+    setModalShown((modalShown: boolean) => !modalShown);
   };
 
   return (
@@ -25,7 +54,7 @@ const MenuBar: React.FC<
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#888',
-    bottom: 50,
+    bottom: 20,
     height: 75,
     left: 25,
     position: 'absolute',
